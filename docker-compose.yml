@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sanboxapp
+    container_name: app
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile_Nginx
+    image: nginx
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "9000:80"
+    volumes:
+      - ./:/var/www
+      - ./config/nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - app
