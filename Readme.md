@@ -1,8 +1,8 @@
 # 🐳 Simple Dockerfile 
 *****
 ## Description containers
-php7.4-fpm
-nginx
+PHP version 7.2.34-fpm
+Nginx version 1.21.5
 
 > Run in background
 

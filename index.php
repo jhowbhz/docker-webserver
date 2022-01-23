@@ -13,7 +13,8 @@
 </head>
 
 <body>
-    <h1>Hello, world!</h1>
+    <h1 class="text-center">Hello, world!</h1>
+    <?php echo phpinfo(); ?>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
