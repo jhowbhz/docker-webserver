@@ -1,22 +1,36 @@
 # 🐳 Simple Dockerfile 
 *****
-
-### up docker image php7.4-fpm and nginx
+## Description containers
+php7.4-fpm
+nginx
 
 > Run in background
 
 ```bash
-    docker-compose up -d
+docker-compose up -d
 ```
 
 > Run live
 
 ```bash
-    docker-compose up -d
+docker-compose up
+
 ```
 
-### show in browser
+> List containers
 
 ```bash
-    docker-compose up
+docker-compose ls
+```
+
+> Stop
+
+```bash
+docker-compose down
+```
+
+## Show in browser
+
+```bash
+https://localhost:9000
 ```
