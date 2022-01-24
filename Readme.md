@@ -3,6 +3,7 @@
 ## Description containers
 - PHP version 7.2.34-fpm
 - Nginx version 1.21.5
+- Mysql version 5.7
 
 > Run in background
 
