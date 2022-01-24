@@ -19,11 +19,11 @@ git clone https://github.com/jhowbhz/docker-webserver.git docker-web
 ### Build
 
 ```bash
-docker-compose up --build
+cd docker-web
 ```
 
 ```bash
-cd docker-web
+docker-compose up --build
 ```
 
 ### Run in background or run live 
