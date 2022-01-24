@@ -26,10 +26,11 @@ cd docker-web
 docker-compose up --build
 ```
 
-### Run in background or run live 
+### Build and run  
 
 ```bash
-docker-compose up -d
+docker-compose up -d --build
+#docker-compose up -d
 #docker-compose up
 ```
 
