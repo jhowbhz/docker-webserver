@@ -49,7 +49,7 @@ docker-compose down
 ## Web Server
 
 ```bash
-https://localhost:9000
+http://localhost:9000
 ```
 ![heidisql](https://i.imgur.com/sdP1txK.png)
 
