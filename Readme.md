@@ -1,22 +1,36 @@
 # 🐳 Simple Dockerfile 
 *****
+
+### Requeriments
+Win, Mac or Linux and 🐳[Docker](https://docs.docker.com/get-docker/)
+
 ### Description containers
 - PHP version 7.2.34-fpm
 - Nginx version 1.21.5
-- Mysql version 8.0
+- MySql version 8.0
 - PHPMyAdmin version 5.1.1
 
-### Run in background
+### Clone repo
+
+```bash
+git clone https://github.com/jhowbhz/docker-php-nginx.git docker-web
+```
+
+### Build
+
+```bash
+docker-compose up --build
+```
+
+```bash
+cd docker-web
+```
+
+### Run in background or run live 
 
 ```bash
 docker-compose up -d
-```
-
-### Run live
-
-```bash
-docker-compose up
-
+#docker-compose up
 ```
 
 ### List containers
