@@ -13,7 +13,7 @@ Win, Mac or Linux and 🐳[Docker](https://docs.docker.com/get-docker/)
 ### Clone repo
 
 ```bash
-git clone https://github.com/jhowbhz/docker-php-nginx.git docker-web
+git clone https://github.com/jhowbhz/docker-webserver.git docker-web
 ```
 
 ### Build
