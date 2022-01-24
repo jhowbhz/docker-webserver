@@ -7,6 +7,8 @@ RUN apk update
 ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
 
 ARG DEPS= 
+
+#CASO QUEIRA HABILITAR AS EXTENSÕES
 #ARG DEPS= "\
 #        php7.4-phar \
 #        php7.4-bcmath \
