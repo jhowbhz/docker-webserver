@@ -1,76 +1,122 @@
-version: '3'
+version: '3.8'
+
+#Docker Networks
+networks:
+  laravel:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+
+# Workflow
 services:
-
-## APLICAÇÃO
-  sanboxapp:
+  nginx:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: sanboxapp
-    container_name: sanboxapp
-    restart: unless-stopped
-    networks:
-      - backend
-    volumes:
-      - ./:/var/www
-
-## WEBSERVER
-  webserver:
-    build:
-      context: .
-      dockerfile: Dockerfile_Nginx
-    image: nginx
-    container_name: webserver
-    restart: unless-stopped
+      dockerfile: ./config/nginx/Dockerfile
+    container_name: nginx
     ports:
-      - "9000:80"
-    networks:
-      - backend
+      - "8080:80"
+      # Port for xdebug (ensure this matches the remote_port in the xdebug.ini)
+      - "9001:9001"
     volumes:
-      - ./:/var/www
-      - ./config/nginx/:/etc/nginx/conf.d/
+      - ./source:/var/www/html:delegated
     depends_on:
-      - sanboxapp
+      - php
+      - mysql
+    networks:
+      - laravel
 
-## BANCO DE DADOS
-  database:
-      build:
-        context: .
-        dockerfile: Dockerfile_Mysql
-      container_name: database
-      command: [mysqld, --default-authentication-plugin=mysql_native_password, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --innodb_monitor_enable=all, --max-connections=1001]
-      tty: true
-      environment:
-        MYSQL_ROOT_PASSWORD: rootpw
-      ports:
-        - "9001:3306"
-      networks:
-        - backend
-      restart: always
-      working_dir: /var/lib/mysql
-      volumes:
-        - "./docker/database/db:/var/lib/mysql"
+  mysql:
+    image: mysql:5.7.29
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME} 
+      MYSQL_PASSWORD: ${DB_PASSWORD} 
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./compose/mysql/my.cnf:/etc/mysql/my.cnf
+      - dbdata:/var/lib/mysql/
+    networks:
+      - laravel
 
-      depends_on:
-        - sanboxapp
-
-# PHP MYADMIN
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    restart: always
-    ports:
-      - '9002:80'
     environment:
-      PMA_HOST: database
-      MYSQL_ROOT_PASSWORD: rootpw
-    networks:
-      - backend
+      MYSQL_ROOT_PASSWORD: secret
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
     depends_on:
-      - sanboxapp
-      - database
-networks:
-  frontend:
-    driver: bridge
-  backend:
-    driver: bridge
+      - mysql
+    ports:
+    - "8081:80"
+    volumes:
+      - /sessions
+    networks:
+      - laravel
+    links:
+      - mysql
+
+  php:
+    build:
+      context: .
+      dockerfile: ./config/php/Dockerfile
+    container_name: php
+    volumes:
+      - ./source:/var/www/html:delegated
+      # Enable xdebug
+      - ./config/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    ports:
+      - "9000:9000"
+    networks:
+      - laravel
+
+  composer:
+    build:
+      context: .
+      dockerfile: ./config/php/composer/Dockerfile
+    container_name: composer
+    volumes:
+      - ./source:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    user: laravel
+    networks:
+      - laravel
+    entrypoint: ['composer', '--ignore-platform-reqs']
+
+  npm:
+    image: node:15.0.1
+    container_name: npm
+    volumes:
+      - ./source:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['npm']
+
+  artisan:
+    build:
+      context: .
+      dockerfile: ./config/php/Dockerfile
+    container_name: artisan
+    volumes:
+      - ./source:/var/www/html:delegated
+    depends_on:
+      - mysql
+    working_dir: /var/www/html
+    user: laravel
+    entrypoint: ['php', '/var/www/html/artisan']
+    networks:
+      - laravel
