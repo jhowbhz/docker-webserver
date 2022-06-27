@@ -1,33 +1,58 @@
-FROM php:7.4-fpm-alpine
+FROM php:8.1-fpm
 
+# Copy composer.lock and composer.json
+#COPY composer.lock composer.json /var/www/
+COPY composer.json /var/www/
+
+# Set working directory
 WORKDIR /var/www
 
-RUN apk update
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    imagemagick \
+    libmagickwand-dev 
+#    libgraphicsmagick1-dev 
 
-RUN apk add --update \
-		libpng-dev \
-		libxml2-dev \
-		libzip-dev \
-		php7-json \
-		php7-openssl \
-		php7-pdo \
-		php7-pdo_mysql \
-		php7-session \
-		php7-pcntl \
-		php7-zip \
-	&& docker-php-ext-install gd \
-	&& docker-php-ext-install zip \
-	&& docker-php-ext-install pdo \
-	&& docker-php-ext-install pdo_mysql 
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN set -x \
-    && echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories
+RUN pecl install imagick && docker-php-ext-enable imagick;
 
-RUN addgroup -g 1000 -S www && \
-    adduser -u 1000 -S www -G www
+# Install extensions
+#RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install gd
+RUN docker-php-ext-install zip
 
-USER www
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Add user for laravel application
+RUN groupadd -g 1000 www
+RUN useradd -u 1000 -ms /bin/bash -g www www
+
+# Copy existing application directory contents
+COPY . /var/www
+
+# Copy existing application directory permissions
 COPY --chown=www:www . /var/www
 
+# Change current user to www
+USER www
+
+# Expose port 9000 and start php-fpm server
 EXPOSE 9000
+CMD ["php-fpm"]
