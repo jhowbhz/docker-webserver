@@ -46,6 +46,14 @@ docker-compose ls
 docker-compose down
 ```
 
+## To run redis
+
+```bash
+cd /opt/docker-webserver/redis
+
+docker-compose up -d
+```
+
 ## Web Server
 
 ```bash
