@@ -49,9 +49,9 @@ docker-compose down
 ## To run redis
 
 ```bash
-cd /opt/docker-webserver/redis
+cd /opt/docker-webserver/redis-server
 
-docker-compose up -d
+docker-compose -f docker-compose.yaml up --build -d
 ```
 
 ## Web Server
